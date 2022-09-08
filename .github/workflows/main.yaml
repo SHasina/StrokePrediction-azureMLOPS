@@ -41,6 +41,7 @@ jobs:
   job2:
     name: Build and save model as artifact
     runs-on: ubuntu-20.04
+    needs: [job1]
     steps:
       - id: step1
         name: checkout
