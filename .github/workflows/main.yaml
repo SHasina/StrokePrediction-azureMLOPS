@@ -38,3 +38,22 @@ jobs:
         shell: bash
         run: |
           pytest -v -s
+  job2:
+    name: Build and save model as artifact
+    runs-on: ubuntu-20.04
+    steps:
+      - id: step1
+        name: checkout
+        uses: actions/checkout@v2
+      - id: step2
+        name: Build model
+        shell: bash
+        run: |
+          python3 model.py
+      - id: step3
+        name: Upload model as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: model
+          path: model.pkl
+          retension-days: 1

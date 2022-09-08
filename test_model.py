@@ -1,4 +1,4 @@
-from build_model import buildModel
+from model import buildModel
 
 def test_Model():
 

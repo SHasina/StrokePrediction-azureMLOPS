@@ -22,7 +22,7 @@ def buildModel():
     score = accuracy_score(y_test, ypred)
     return {"score": score}
 
-def saveModel():
+def buildAndSaveModel():
 
     # Initialize and fit on train datasets
     cls_r =RandomForestClassifier(n_estimators=600,min_samples_split=10,max_depth=100,criterion="gini")
