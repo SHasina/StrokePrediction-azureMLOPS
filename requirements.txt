@@ -1,0 +1,8 @@
+google-cloud-storage
+python-multipart
+scikit-learn
+fastapi[all]
+gunicorn
+pytest
+pandas
+numpy
