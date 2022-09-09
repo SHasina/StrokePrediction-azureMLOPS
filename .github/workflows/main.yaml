@@ -82,7 +82,7 @@ jobs:
         run: |
           bucket_name=$(gsutil ls | grep bright-ai-models)
 
-      - id: step1
+      - id: step2
         name: create storage bucket
         shell: bash
         run: |
