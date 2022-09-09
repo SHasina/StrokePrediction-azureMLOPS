@@ -15,57 +15,85 @@ on:
           - prod
         default: prod
 jobs:
-  job1:
-    name: Run test
+  # job1:
+    # name: Run test
+    # runs-on: ubuntu-20.04
+    # steps:
+    #   - id: step1
+    #     name: checkout
+    #     uses: actions/checkout@v2
+    #   - id: step2
+    #     name: download and setup python version
+    #     uses: actions/setup-python@v3
+    #     with:
+    #       python-version: 3.10.0
+    #       cache: pip
+    #   - id: step3
+    #     name: Install packages
+    #     shell: bash
+    #     run: |
+    #       pip install -r requirements.txt
+    #   - id: step4
+    #     name: build and test model
+    #     shell: bash
+    #     run: |
+    #       pytest -v -s
+  # job2:
+  #   name: Build and save model as artifact
+  #   runs-on: ubuntu-20.04
+  #   needs: [job1]
+  #   steps:
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v2
+  #     - id: step2
+  #       name: download and setup python version
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: 3.10.0
+  #         cache: pip
+  #     - id: step3
+  #       name: Install packages
+  #       shell: bash
+  #       run: |
+  #         pip install -r requirements.txt
+  #     - id: step4
+  #       name: Build model
+  #       shell: bash
+  #       run: |
+  #         python3 build.py
+  #     - id: step5
+  #       name: Upload model as artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: model
+  #         path: model.pkl
+  #         retention-days: 1
+  job3:
+    name: Create Storage Account and upload model into it
+    # needs: [job2]
     runs-on: ubuntu-20.04
+    env:
+      bucket_name: "bright-ai-models"
     steps:
       - id: step1
-        name: checkout
-        uses: actions/checkout@v2
-      - id: step2
-        name: download and setup python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.10.0
-          cache: pip
-      - id: step3
-        name: Install packages
+        name: Get storage bucket name if it exists
         shell: bash
         run: |
-          pip install -r requirements.txt
-      - id: step4
-        name: build and test model
-        shell: bash
-        run: |
-          pytest -v -s
-  job2:
-    name: Build and save model as artifact
-    runs-on: ubuntu-20.04
-    needs: [job1]
-    steps:
+          bucket_name=$(gsutil ls | grep bright-ai-models)
+
       - id: step1
-        name: checkout
-        uses: actions/checkout@v2
-      - id: step2
-        name: download and setup python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.10.0
-          cache: pip
-      - id: step3
-        name: Install packages
+        name: create storage bucket
         shell: bash
         run: |
-          pip install -r requirements.txt
-      - id: step4
-        name: Build model
-        shell: bash
-        run: |
-          python3 build.py
-      - id: step5
-        name: Upload model as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: model
-          path: model.pkl
-          retension-days: 1
+          echo "$bucket_name"
+      # - id: step2
+      #   name: download model from artifact registry
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: model
+      # - id: step3
+      #   name: upload model to storage bucket
+      #   shell: bash
+      #   run: |
+      #     echo
