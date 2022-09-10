@@ -28,5 +28,6 @@ jobs:
       - id: step4
         name: Display containerapp id
         shell: bash
+        if: ${{ steps.step3.outputs.CONTAINER_NAME == "msk-dev-signup" }}
         run: |
-          echo ${{ steps.step3.outputs.CONTAINER_NAME }}
+          echo "It exists, thanks alot"
