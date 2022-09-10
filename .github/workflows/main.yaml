@@ -72,34 +72,44 @@ jobs:
     steps:
 
       - id: step1
+        name: checkout
+        uses: actions/checkout@v3
+
+      - id: step2
         name: azure login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - id: step2
+      - id: step3
         name: install container app extension
         shell: bash
         run: |
           az extension add -n containerapp
 
-      - id: step3
+      - id: step4
         name: Get containerapp name
+        continue-on-error: true
         shell: bash
         run: |
 
           OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
-          echo $OUTPUT
-          echo "::set-output name=OUTPUT::$OUTPUT"          
-         
-      - id: step4
+          
+          if [ $OUTPUT == $CONTAINER_APP_NAME ]
+          then
+            echo "::set-output name=OUTPUT::$OUTPUT"          
+          else
+            echo "::set-output name=OUTPUT::$error"          
+          fi
+
+      - id: step5
         if: ${{ steps.step3.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
         name: Update containerapp if exists
         shell: bash
         run: |
           echo "Update old containerapp"
       
-      - id: step5
+      - id: step6
         if: ${{ steps.step3.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
         name: Deploy new containerapp if not exists
         shell: bash
