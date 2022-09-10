@@ -25,9 +25,9 @@ jobs:
         shell: bash
         run: |
           CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
-      
+          echo '::set-output name=CONTAINER_NAME::$CONTAINERAPP_NAME'
       - id: step4
         name: Display containerapp id
         shell: bash
         run: |
-          echo ${{ steps.step3.outputs.CONTAINERAPP_NAME }}
+          echo ${{ steps.step3.outputs.CONTAINER_NAME }}
