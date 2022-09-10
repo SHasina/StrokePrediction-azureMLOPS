@@ -3,11 +3,11 @@ on:
   push:
     branches:
       - prod
-  workflow_dispatch:
-    inputs:
-      required: true
-      description: allowed manual deployment
-      default: execute
+  # workflow_dispatch:
+  #   inputs:
+  #     required: true
+  #     description: allowed manual deployment
+  #     default: execute
 jobs:
   # job1:
   #   name: Run test
