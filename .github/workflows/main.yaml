@@ -70,7 +70,7 @@ jobs:
         name: Upload model as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: model
+          name: mlmodel
           path: model.pkl
           retention-days: 1
   job3:
@@ -87,7 +87,7 @@ jobs:
         name: download model from artifact registry
         uses: actions/download-artifact@v3
         with:
-          name: model
+          name: mlmodel
 
       - id: step3
         name: azure login
@@ -100,4 +100,4 @@ jobs:
         with:
           version: 'v10'
       - run: |
-          az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s model
+          az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s ./home/runner/work/StrokePrediction/StrokePrediction
