@@ -35,7 +35,7 @@ jobs:
             echo "::set-output name=OUTPUT::0"
           fi
       - id: step4
-        if: steps.step3.outputs.OUTPUT == 1
+        if: steps.step3.outputs.OUTPUT == 0
         name: Display containerapp id
         shell: bash
         run: |
