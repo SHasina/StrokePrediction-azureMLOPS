@@ -25,10 +25,11 @@ jobs:
         shell: bash
         run: |
           OUTPUT=$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name") &&
+          echo $OUTPUT &&
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - id: step4
-        if: steps.step3.outputs.OUTPUT == 'msk-dev-signup'
+        if: steps.step3.outputs.OUTPUT == "msk-dev-signup"
         name: Display containerapp id
         shell: bash
         run: |
