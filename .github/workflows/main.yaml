@@ -13,7 +13,7 @@ env:
   CONTAINER_APP_ENVIRONMENT: mlstudio
   CONTAINER_APP_NAME: mlstudio
   RESOURCE_GROUP: mlstudio
-  REGION: eastus2euap
+  REGION: eastus
 
 jobs:
   job1:
