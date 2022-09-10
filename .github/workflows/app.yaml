@@ -28,14 +28,10 @@ jobs:
         run: |
           OUTPUT=$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name" -o tsv | tr -d '[:space:]') &&
           echo $OUTPUT &&
-          if (( $CONTAINER_APP_NAME == $OUTPUT ))
-          then
-            echo "::set-output name=OUTPUT::1"
-          else
-            echo "::set-output name=OUTPUT::0"
-          fi
+          echo "::set-output name=OUTPUT::$OUTPUT"
+
       - id: step4
-        if: steps.step3.outputs.OUTPUT == 1
+        if: ${{ steps.step3.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
         name: Display containerapp id
         shell: bash
         run: |
