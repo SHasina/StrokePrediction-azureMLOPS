@@ -11,6 +11,8 @@ on:
         default: execute
 env:
   CONTAINER_APP_ENVIRONMENT: mlstudio
+  STORAGE_CONTAINER_NAME: mlstudio
+  STORAGE_ACCOUNT_NAME: mlstudio1
   CONTAINER_APP_NAME: mlstudio
   RESOURCE_GROUP: mlstudio
   REGION: eastus
@@ -91,10 +93,23 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          az storage account create -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --kind StorageV2 -l $REGION  -t Account
+          az storage account create -n $STORAGE_ACCOUNT_NAME -g $RESOURCE_GROUP --kind StorageV2 -l $REGION  -t Account
 
       - id: step4
-        name: download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: model
+        name: create storage container
+        continue-on-error: true
+        shell: bash
+        run: |
+          az storage container create -n $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+          OUTPUT=$(az storage account show-connection-string --name mlstudio1 --resource-group mlstudio --query "connectionString" -o tsv | tr -d '[:space:]')
+          echo "::set-output name=OUTPUT::$OUTPUT"
+      # - id: step5
+      #   name: download artifacts
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: model
+      - id: step6
+        name: display connection string
+        shell: bash
+        run: |
+          echo steps.step4.outputs.OUTPUT
