@@ -8,11 +8,10 @@ jobs:
     name: testing azure cli
     runs-on: ubuntu-latest
     steps:
-      step1:
-        - id: step1
-          name: azure login
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
-          run: |
-            az containerapp list
+      - id: step1
+        name: azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          az containerapp list
