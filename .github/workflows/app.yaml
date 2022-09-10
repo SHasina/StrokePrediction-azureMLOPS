@@ -24,8 +24,7 @@ jobs:
         name: get list of containerapps
         shell: bash
         run: |
-          CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
-          echo '::set-output name=CONTAINER_NAME::$CONTAINERAPP_NAME'
+          echo '::set-output name=CONTAINER_NAME::$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)'
       - id: step4
         name: Display containerapp id
         shell: bash
