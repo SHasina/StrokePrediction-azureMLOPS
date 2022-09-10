@@ -109,4 +109,4 @@ jobs:
         name: Deploy new containerapp if not exists
         shell: bash
         run: |
-          echo "Deploy new containerapp"
+          echo $steps.step3.outputs.OUTPUT
