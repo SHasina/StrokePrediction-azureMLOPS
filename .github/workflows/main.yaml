@@ -101,7 +101,7 @@ jobs:
           az storage blob copy start \
           --account-key ${{ secrets.STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRINGS }} \
           --account-name $STORAGE_ACCOUNT_NAME \
-          --destination-blob model.pkl \
+          --destination-blob model \
           --destination-container $STORAGE_CONTAINER_NAME \
           --source-uri https://storage.blob.core.windows.net/
           
