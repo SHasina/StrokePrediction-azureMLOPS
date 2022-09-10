@@ -28,8 +28,8 @@ jobs:
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - id: step4
+        if: steps.step3.outputs.OUTPUT == 'msk-dev-signup'
         name: Display containerapp id
         shell: bash
-        if: steps.step3.outputs.OUTPUT == msk-dev-signup
         run: |
           echo ${{ steps.step3.outputs.OUTPUT }}
