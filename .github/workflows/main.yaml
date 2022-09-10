@@ -92,7 +92,6 @@ jobs:
           then
             echo $OUTPUT
             echo "::set-output name=OUTPUT::$OUTPUT"
-            exit 0
           else
             echo "::set-output name=OUTPUT::error"
           fi
