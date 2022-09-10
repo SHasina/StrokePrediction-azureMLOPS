@@ -76,7 +76,6 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: true 
 
       - id: step2
         name: install container app extension
@@ -86,16 +85,12 @@ jobs:
 
       - id: step3
         name: Get containerapp name
-        shell: pwsh
+        shell: bash
         run: |
 
-          try{
-            OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
-            echo $OUTPUT
-            echo "::set-output name=OUTPUT::$OUTPUT"
-          }catch{
-            echo "::set-output name=OUTPUT::error"
-          }
+          OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
+          echo $OUTPUT
+          echo "::set-output name=OUTPUT::$OUTPUT"          
          
       - id: step4
         if: ${{ steps.step3.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
