@@ -23,16 +23,23 @@ jobs:
           az extension add -n containerapp
       
       - id: step3
-        name: get list of containerapps
+        name: Get containerapp name
         shell: bash
         run: |
-          OUTPUT=$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name" -o tsv | tr -d '[:space:]') &&
+          OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]') &&
           echo $OUTPUT &&
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - id: step4
         if: ${{ steps.step3.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
-        name: Display containerapp id
+        name: Update containerapp if exists
         shell: bash
         run: |
-          echo "It really worked!"
+          echo "Update containerapp"
+      
+      - id: step4
+        if: ${{ steps.step3.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
+        name: Deploy new containerapp if not exists
+        shell: bash
+        run: |
+          echo "Deploy containerapp"
