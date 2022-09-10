@@ -24,10 +24,11 @@ jobs:
         name: get list of containerapps
         shell: bash
         run: |
-          echo '::set-output name=CONTAINER_NAME::$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name")'
+          OUTPUT=$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name")
+          echo '::set-output name=CONTAINER_NAME::$OUTPUT'
       - id: step4
         name: Display containerapp id
         shell: bash
-        if: ${{ steps.step3.outputs.CONTAINER_NAME == msk-dev-signup }}
+        # if: steps.step3.outputs.CONTAINER_NAME == "msk-dev-signup"
         run: |
-          echo "It exists, thanks alot"
+          echo steps.step3.outputs.CONTAINER_NAME
