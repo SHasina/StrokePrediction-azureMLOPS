@@ -35,11 +35,11 @@ jobs:
         name: Update containerapp if exists
         shell: bash
         run: |
-          echo "Update containerapp"
+          echo "Update old containerapp"
       
-      - id: step4
+      - id: step5
         if: ${{ steps.step3.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
         name: Deploy new containerapp if not exists
         shell: bash
         run: |
-          echo "Deploy containerapp"
+          echo "Deploy new containerapp"
