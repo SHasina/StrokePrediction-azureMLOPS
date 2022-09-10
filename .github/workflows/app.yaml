@@ -7,6 +7,8 @@ jobs:
   job1:
     name: testing azure cli
     runs-on: ubuntu-latest
+    env:
+      CONTAINER_APP_NAME: "msk-dev-signup"
     steps:
       - id: step1
         name: azure login
@@ -29,7 +31,7 @@ jobs:
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - id: step4
-        if: steps.step3.outputs.OUTPUT == 'msk-dev-signup'
+        if: steps.step3.outputs.OUTPUT == $CONTAINER_APP_NAME
         name: Display containerapp id
         shell: bash
         run: |
