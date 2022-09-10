@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [job2]
     env:
-      CONTAINER_APP_NAME: msk-dev-signups
+      CONTAINER_APP_NAME: msk-dev-signup
     steps:
 
       - id: step1
