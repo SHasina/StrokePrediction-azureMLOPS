@@ -83,10 +83,13 @@ jobs:
         uses: actions/checkout@v3
       
       - id: step2
-        name: azure login
+        name: 'Az CLI login'
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+  
 
       - id: step3
         name: create storage bucket
@@ -101,7 +104,7 @@ jobs:
         shell: bash
         run: |
           az storage container create -n $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
-          OUTPUT=$(az storage account show-connection-string --name mlstudio1 --resource-group mlstudio --query "connectionString" -o tsv | tr -d '[:space:]')
+          OUTPUT=$(az storage account show-connection-string --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP --query "connectionString" -o tsv | tr -d '[:space:]')
           echo "::set-output name=OUTPUT::$OUTPUT"
       # - id: step5
       #   name: download artifacts
