@@ -88,7 +88,7 @@ jobs:
         shell: bash
         run: |
           OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
-          if [$? -eq 1]
+          if [$? -eq 0]
           then
             echo $OUTPUT
             echo "::set-output name=OUTPUT::$OUTPUT"
