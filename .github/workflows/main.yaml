@@ -99,5 +99,12 @@ jobs:
         uses: kheiakiyama/install-azcopy-action@v1
         with:
           version: 'v10'
+      
+      - id: step5
+        name: list directory
+        shell: bash
+        run: |
+          mkdir modeldirectory
+          mv model.pkl modeldirectory
       - run: |
-          ls -R
+          az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s modeldirectory
