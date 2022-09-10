@@ -7,8 +7,6 @@ jobs:
   job1:
     name: testing azure cli
     runs-on: ubuntu-latest
-    env:
-      CONTAINERAPP_NAME: "one"
     steps:
       - id: step1
         name: azure login
