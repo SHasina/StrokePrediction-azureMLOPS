@@ -13,5 +13,14 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - id: step2
+        name: install container app extension
+        shell: bash
+        run: |
+          az extension add -n containerapp
+      
+      - id: step3
+        name: get list of containerapps
         run: |
           az containerapp list
