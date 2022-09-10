@@ -18,6 +18,7 @@ env:
   REGION: eastus
 
 jobs:
+
   job1:
     name: Run test
     runs-on: ubuntu-20.04
@@ -74,29 +75,29 @@ jobs:
           retention-days: 1
   job3:
     name: upload model to storage account
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [job2]
     steps:
 
       - id: step1
         name: checkout
         uses: actions/checkout@v3
-      
-      - id: step2
-        name: azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - id: step5
+      - id: step2
         name: download model from artifact registry
         uses: actions/download-artifact@v3
         with:
           name: model
 
-      - id: step6
-        name: display connection string
-        shell: bash
-        run: |
-          az storage blob copy start --account-key ${{ secrets.STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRINGS }} --account-name $STORAGE_ACCOUNT_NAME --destination-blob model --destination-container $STORAGE_CONTAINER_NAME --source-uri https://storage.blob.core.windows.net/
-          
+      - id: step3
+        name: azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - id: step4
+        uses: kheiakiyama/install-azcopy-action@v1
+        with:
+          version: 'v10'
+      - run: |
+          az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s model
