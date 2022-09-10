@@ -11,6 +11,7 @@ on:
         default: execute
 env:
   CONTAINER_APP_ENVIRONMENT: mlstudio
+  DOCKERHUB_USERNAME: cloudwithdeb
   STORAGE_CONTAINER_NAME: mlstudio
   STORAGE_ACCOUNT_NAME: mlstudio1
   CONTAINER_APP_NAME: mlstudio
@@ -106,5 +107,30 @@ jobs:
         run: |
           mkdir modeldirectory
           mv model.pkl modeldirectory
-      - run: |
+
+      - id: step6
+        name: upload model to storage account
+        shell: bash
+        run: |
           az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s modeldirectory
+
+  job4:
+    name: Build and push docker image
+    runs-on: ubuntu-20.04
+    needs: [job2]
+    steps:
+
+      - id: step1
+        name: authenticate to dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: $DOCKERHUB_USERNAME
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - id: step2
+        name: Build and push docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: $DOCKERHUB_USERNAME/mlmodels:latest
