@@ -24,6 +24,7 @@ jobs:
       
       - id: step3
         name: get list of containerapps
+        shell: bash
         run: |
           $CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
       
