@@ -88,28 +88,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - id: step3
-        name: create storage bucket
-        continue-on-error: true
-        shell: bash
-        run: |
-          az storage account create -n $STORAGE_ACCOUNT_NAME -g $RESOURCE_GROUP --kind StorageV2 -l $REGION
+      - id: step5
+        name: download model from artifact registry
+        uses: actions/download-artifact@v3
+        with:
+          name: model
 
-      - id: step4
-        name: create storage container
-        continue-on-error: true
-        shell: bash
-        run: |
-          az storage container create -n $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
-          OUTPUT=$(az storage account show-connection-string --name mlstudio1 --resource-group mlstudio --query "connectionString" -o tsv | tr -d '[:space:]')
-          echo "::set-output name=OUTPUT::$OUTPUT"
-      # - id: step5
-      #   name: download artifacts
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: model
       - id: step6
         name: display connection string
         shell: bash
         run: |
-          echo steps.step4.outputs.OUTPUT
+          az storage blob copy start \
+          --account-key ${{ secrets.STORAGE_ACCOUNT_PRIMARY_CONNECTION_STRINGS }} \
+          --account-name $STORAGE_ACCOUNT_NAME \
+          --destination-blob model.pkl \
+          --destination-container $STORAGE_CONTAINER_NAME \
+          --source-uri https://storage.blob.core.windows.net/
+          
