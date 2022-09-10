@@ -8,7 +8,7 @@ jobs:
     name: testing azure cli
     runs-on: ubuntu-latest
     env:
-      CONTAINER_APP_NAME: "msk-dev-signup"
+      CONTAINER_APP_NAME: msk-dev-signup
     steps:
       - id: step1
         name: azure login
@@ -28,7 +28,7 @@ jobs:
         run: |
           OUTPUT=$(az containerapp show --name msk-dev-signup --resource-group msk-dev-signup --query "name") &&
           echo $OUTPUT &&
-          if (( $OUTPUT == "msk-dev-signup" ))
+          if (( $env.CONTAINER_APP_NAME == $OUTPUT ))
           then
             echo "::set-output name=OUTPUT::1"
           else
