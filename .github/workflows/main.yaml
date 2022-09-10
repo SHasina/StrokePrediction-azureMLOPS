@@ -108,7 +108,13 @@ jobs:
           mv model.pkl modeldirectory
 
       - id: step6
-        name: upload model to storage account
+        name: delete existing model
+        shell: bash
+        run: |
+          az storage blob delete-batch --source $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+      - id: step7
+        name: upload new model to storage account
         shell: bash
         run: |
           az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s modeldirectory
@@ -131,5 +137,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mlmodels:latest
