@@ -7,6 +7,8 @@ jobs:
   job1:
     name: testing azure cli
     runs-on: ubuntu-latest
+    env:
+      CONTAINERAPP_NAME: "one"
     steps:
       - id: step1
         name: azure login
@@ -23,4 +25,10 @@ jobs:
       - id: step3
         name: get list of containerapps
         run: |
-          az containerapp list
+          $CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
+      
+      - id: step4
+        name: Display containerapp id
+        shell: bash
+        run: |
+          echo $CONTAINERAPP_NAME
