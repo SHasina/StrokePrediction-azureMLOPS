@@ -26,10 +26,10 @@ jobs:
         name: get list of containerapps
         shell: bash
         run: |
-          $CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
+          CONTAINERAPP_NAME=$(az containerapp list --output json | grep /Microsoft.App/containerapps/msk-prod-signup)
       
       - id: step4
         name: Display containerapp id
         shell: bash
         run: |
-          echo $CONTAINERAPP_NAME
+          echo ${{ steps.step3.outputs.CONTAINERAPP_NAME }}
