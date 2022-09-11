@@ -15,6 +15,7 @@ env:
   STORAGE_CONTAINER_NAME: mlstudio
   STORAGE_ACCOUNT_NAME: mlstudio1
   CONTAINER_APP_NAME: mlstudio
+  LOG_ANALYTICS_NAME: mlstudio
   RESOURCE_GROUP: mlstudio
   REGION: eastus
   PORT: 8000
@@ -179,59 +180,83 @@ jobs:
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - id: step5
-        if: ${{ steps.step4.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
-        name: Update containerapp if exists
+        name: deploy log analytics workspace
         shell: bash
         run: |
 
-          az containerapp update \
-          --name $CONTAINER_APP_NAME \
-          --resource-group $RESOURCE_GROUP \
-          --image cloudwithdeb/mlmodels:latest \
-          --memory 4.0Gi \
-          --min-replicas 0 \
-          --max-replicas 3 \
-          --cpu 2.0 
+          az monitor log-analytics workspace create \
+          -n $LOG_ANALYTICS_NAME \
+          -g $RESOURCE_GROUP
 
       - id: step6
-        if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
-        name: Deploy new containerapp if it does not exists
+        name: Deploy containerapp environment
         shell: bash
         run: |
+
+          WORKSPACE_ID=$(az monitor log-analytics workspace show --query customerId -g $RESOURCE_GROUP -n $LOG_ANALYTICS_NAME -o tsv | tr -d '[:space:]')
+          WORKSPACE_PRIMARY_KEY=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $CONTAINER_APP_ENVIRONMENT -o tsv | tr -d '[:space:]'`
+
+          az containerapp env create \
+          -n $CONTAINER_APP_ENVIRONMENT \
+          -g $RESOURCE_GROUP \
+          --logs-workspace-id $WORKSPACE_ID \
+          --logs-workspace-key $WORKSPACE_PRIMARY_KEY \
+          --location $REGION
+
+      # - id: step7
+      #   if: ${{ steps.step4.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
+      #   name: Update containerapp if exists
+      #   shell: bash
+      #   run: |
+
+      #     az containerapp update \
+      #     --name $CONTAINER_APP_NAME \
+      #     --resource-group $RESOURCE_GROUP \
+      #     --image cloudwithdeb/mlmodels:latest \
+      #     --memory 4.0Gi \
+      #     --min-replicas 0 \
+      #     --max-replicas 3 \
+      #     --cpu 2.0 
+
+      # - id: step8
+      #   if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
+      #   name: Deploy new containerapp if it does not exists
+      #   shell: bash
+      #   run: |
           
-          az containerapp create \
-          --resource-group $RESOURCE_GROUP \
-          --environment $CONTAINER_APP_ENVIRONMENT \
-          --image cloudwithdeb/mlmodels:latest \
-          -n $CONTAINER_APP_NAME \
-          --target-port $PORT \
-          --ingress 'external' \
-          --cpu 2.0 \
-          --memory 4.0Gi \
-          --min-replicas 0 \
-          --max-replicas 3 \
-          --env-vars \
-          STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
-          STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
+      #     az containerapp create \
+      #     --resource-group $RESOURCE_GROUP \
+      #     --environment $CONTAINER_APP_ENVIRONMENT \
+      #     --image cloudwithdeb/mlmodels:latest \
+      #     -n $CONTAINER_APP_NAME \
+      #     --target-port $PORT \
+      #     --ingress 'external' \
+      #     --cpu 2.0 \
+      #     --memory 4.0Gi \
+      #     --min-replicas 0 \
+      #     --max-replicas 3 \
+      #     --env-vars \
+      #     STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
+      #     STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
       
-      - id: step7
-        name: enable containerapp managed identity
-        shell: bash
-        run: |
+      # - id: step9
+      #   name: enable containerapp managed identity
+      #   shell: bash
+      #   run: |
 
-          az containerapp identity assign -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --system-assigned
+      #     az containerapp identity assign -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --system-assigned
 
-      - id: step8
-        name: Get containerapp managed identity id
-        shell: bash
-        run: |
+      # - id: step10
+      #   name: Get containerapp managed identity id
+      #   shell: bash
+      #   run: |
 
-          CONTAINER_APP_ID="/subscriptions/${{secrets.SUBSCRIPTION}}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.App/containerApps/$CONTAINER_APP_NAME" &&
-          MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]') &&
-          echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
+      #     CONTAINER_APP_ID="/subscriptions/${{secrets.SUBSCRIPTION}}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.App/containerApps/$CONTAINER_APP_NAME" &&
+      #     MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]') &&
+      #     echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
 
-      - id: step9
-        name: Grant storage account blob contributer permission to containerapp
-        shell: bash
-        run: |
-          az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id $steps.step8.outputs.MANAGED_IDENTITY_ID --assignee-principal-type ServicePrincipal
+      # - id: step11
+      #   name: Grant storage account blob contributer permission to containerapp
+      #   shell: bash
+      #   run: |
+      #     az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id $steps.step10.outputs.MANAGED_IDENTITY_ID --assignee-principal-type ServicePrincipal
