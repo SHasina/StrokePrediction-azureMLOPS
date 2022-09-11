@@ -30,4 +30,10 @@ infrastructure
 venv
 README.md
 script.sh
-
+.github
+datasets
+model
+build
+model
+README.md
+test_model.py

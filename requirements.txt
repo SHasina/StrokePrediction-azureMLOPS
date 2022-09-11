@@ -1,5 +1,6 @@
-google-cloud-storage
+azure-storage-blob
 python-multipart
+azure-identity
 scikit-learn
 fastapi[all]
 gunicorn
