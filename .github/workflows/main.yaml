@@ -263,4 +263,4 @@ jobs:
         name: Grant storage account blob contributer permission to containerapp
         shell: bash
         run: |
-          az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id $steps.step10.outputs.MANAGED_IDENTITY_ID --assignee-principal-type ServicePrincipal
+          az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id ${{ steps.step10.outputs.MANAGED_IDENTITY_ID }} --assignee-principal-type ServicePrincipal
