@@ -11,8 +11,8 @@ router = APIRouter()
 token_credential = DefaultAzureCredential()
 
 #Get Environment Variables
-PROJECT=os.getenv("PROJECT")
-STORAGE_BUCKET=os.getenv("BUCKET_NAME")
+STORAGE_ACCOUNT_URL=os.getenv("STORAGE_ACCOUNT_URL")
+STORAGE_ACCOUNT_CONTAINER_NAME=os.getenv("STORAGE_ACCOUNT_CONTAINER_NAME")
 
 class StrokeParameters(BaseModel):
 
@@ -95,7 +95,7 @@ async def predictStroke(stroke: StrokeParameters = Body(...)):
                     bmi
                 ]
 
-                blob_client = BlobClient("https://mlstudio1.blob.core.windows.net",container_name="mlstudio", blob_name="model.pkl", credential=token_credential)
+                blob_client = BlobClient(STORAGE_ACCOUNT_URL,container_name=STORAGE_ACCOUNT_CONTAINER_NAME, blob_name="model.pkl", credential=token_credential)
 
                 with open("./model.pkl", "wb") as my_blob:
                     blob_data = blob_client.download_blob()

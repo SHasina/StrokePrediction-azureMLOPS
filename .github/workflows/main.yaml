@@ -10,12 +10,14 @@ on:
         description: allowed manual deployment
         default: execute
 env:
+  STORAGE_ACCOUNT_URL: "https://mlstudio1.blob.core.windows.net"
   CONTAINER_APP_ENVIRONMENT: mlstudio
   STORAGE_CONTAINER_NAME: mlstudio
   STORAGE_ACCOUNT_NAME: mlstudio1
   CONTAINER_APP_NAME: mlstudio
   RESOURCE_GROUP: mlstudio
   REGION: eastus
+  PORT: 8000
 
 jobs:
 
@@ -181,11 +183,53 @@ jobs:
         name: Update containerapp if exists
         shell: bash
         run: |
-          echo "Update old containerapp"
-      
+
+          az containerapp update \
+          --name $CONTAINER_APP_NAME \
+          --resource-group $RESOURCE_GROUP \
+          --image cloudwithdeb/mlmodels:latest \
+          --memory 4.0Gi \
+          --min-replicas 0 \
+          --max-replicas 3 \
+          --cpu 2.0 
+
       - id: step6
         if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
         name: Deploy new containerapp if it does not exists
         shell: bash
         run: |
-          echo "Deploy new containerapp"
+          
+          az containerapp create \
+          --resource-group $RESOURCE_GROUP \
+          --environment $CONTAINER_APP_ENVIRONMENT \
+          --image cloudwithdeb/mlmodels:latest \
+          -n $CONTAINER_APP_NAME \
+          --target-port $PORT \
+          --ingress 'external' \
+          --cpu 2.0 \
+          --memory 4.0Gi \
+          --min-replicas 0 \
+          --max-replicas 3 \
+          --env-vars \
+          STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
+          STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
+      
+      - id: step7
+        name: enable containerapp managed identity
+        shell: bash
+        run: |
+
+          CONTAINER_APP_ID="/subscriptions/${{secrets.SUBSCRIPTION}}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.App/containerApps/$CONTAINER_APP_NAME"
+
+      - id: step8
+        name: Get containerapp managed identity id
+        shell: bash
+        run: |
+          MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]')
+          echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
+
+      - id: step9
+        name: Grant storage account blob contributer permission to containerapp
+        shell: bash
+        run: |
+          az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id $steps.step8.outputs.MANAGED_IDENTITY_ID --assignee-principal-type ServicePrincipal
