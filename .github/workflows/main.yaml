@@ -28,18 +28,22 @@ jobs:
     steps:
 
       - id: step0
+        name: checkout repository
+        uses: actions/checkout@v3
+
+      - id: step1
         name: azure login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - id: step1
+      - id: step2
         name: create resource group
         shell: bash
         run: |
           az group create -n $RESOURCE_GROUP -l $REGION
 
-      - id: step2
+      - id: step3
         name: create storage account
         shell: bash
         run: |
