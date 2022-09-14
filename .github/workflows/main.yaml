@@ -48,6 +48,13 @@ jobs:
         shell: bash
         run: |
           az storage account create -n $STORAGE_ACCOUNT_NAME -g $RESOURCE_GROUP -l $REGION --sku $SKU
+      
+      - id: step4
+        name: create storage account container
+        shell: bash
+        run: |
+          az storage container create -n $STORAGE_ACCOUNT_NAME --account-name $STORAGE_ACCOUNT_NAME
+
   # job1:
   #   name: Run test
   #   runs-on: ubuntu-20.04
