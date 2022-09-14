@@ -10,257 +10,272 @@ on:
         description: allowed manual deployment
         default: execute
 env:
-  STORAGE_ACCOUNT_URL: "https://mlstudio1.blob.core.windows.net"
-  CONTAINER_APP_ENVIRONMENT: mlstudio
-  STORAGE_CONTAINER_NAME: mlstudio
-  STORAGE_ACCOUNT_NAME: mlstudio1
-  CONTAINER_APP_NAME: mlstudio
-  LOG_ANALYTICS_NAME: mlstudio
-  RESOURCE_GROUP: mlstudio
+  STORAGE_ACCOUNT_URL: "https://stroke10model.blob.core.windows.net"
+  CONTAINER_APP_ENVIRONMENT: stroke10model
+  STORAGE_CONTAINER_NAME: stroke10model
+  STORAGE_ACCOUNT_NAME: stroke10model
+  CONTAINER_APP_NAME: stroke10model
+  LOG_ANALYTICS_NAME: stroke10model
+  RESOURCE_GROUP: stroke10model
+  SKU: Standard_LRS
   REGION: eastus
   PORT: 8000
 
 jobs:
-
-  job1:
-    name: Run test
+  job0:
+    name: create resource group
     runs-on: ubuntu-20.04
     steps:
       - id: step1
-        name: checkout
-        uses: actions/checkout@v2
-      - id: step2
-        name: download and setup python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.10.0
-          cache: pip
-      - id: step3
-        name: Install packages
+        name: create resource group
         shell: bash
         run: |
-          pip install -r requirements.txt
-      - id: step4
-        name: build and test model
-        shell: bash
-        run: |
-          pytest -v -s
-  job2:
-    name: Build and save model as artifact
-    runs-on: ubuntu-20.04
-    needs: [job1]
-    steps:
-      - id: step1
-        name: checkout
-        uses: actions/checkout@v2
-      - id: step2
-        name: download and setup python version
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.10.0
-          cache: pip
-      - id: step3
-        name: Install packages
-        shell: bash
-        run: |
-          pip install -r requirements.txt
-      - id: step4
-        name: Build model
-        shell: bash
-        run: |
-          python3 build.py
-      - id: step5
-        name: Upload model as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: mlmodel
-          path: model.pkl
-          retention-days: 1
-  job3:
-    name: upload model to storage account
-    runs-on: ubuntu-20.04
-    needs: [job2]
-    steps:
-
-      - id: step1
-        name: checkout
-        uses: actions/checkout@v3
+          az group create -n $RESOURCE_GROUP -l $REGION
 
       - id: step2
-        name: download model from artifact registry
-        uses: actions/download-artifact@v3
-        with:
-          name: mlmodel
+        name: create storage account
+        shell: bash
+        run: |
+          az storage account create -n $STORAGE_ACCOUNT_NAME -g $RESOURCE_GROUP -l $REGION --sku $SKU
+  # job1:
+  #   name: Run test
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v2
+  #     - id: step2
+  #       name: download and setup python version
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: 3.10.0
+  #         cache: pip
+  #     - id: step3
+  #       name: Install packages
+  #       shell: bash
+  #       run: |
+  #         pip install -r requirements.txt
+  #     - id: step4
+  #       name: build and test model
+  #       shell: bash
+  #       run: |
+  #         pytest -v -s
+  # job2:
+  #   name: Build and save model as artifact
+  #   runs-on: ubuntu-20.04
+  #   needs: [job1]
+  #   steps:
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v2
+  #     - id: step2
+  #       name: download and setup python version
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: 3.10.0
+  #         cache: pip
+  #     - id: step3
+  #       name: Install packages
+  #       shell: bash
+  #       run: |
+  #         pip install -r requirements.txt
+  #     - id: step4
+  #       name: Build model
+  #       shell: bash
+  #       run: |
+  #         python3 build.py
+  #     - id: step5
+  #       name: Upload model as artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mlmodel
+  #         path: model.pkl
+  #         retention-days: 1
+  # job3:
+  #   name: upload model to storage account
+  #   runs-on: ubuntu-20.04
+  #   needs: [job2]
+  #   steps:
 
-      - id: step3
-        name: azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v3
 
-      - id: step4
-        uses: kheiakiyama/install-azcopy-action@v1
-        with:
-          version: 'v10'
+  #     - id: step2
+  #       name: download model from artifact registry
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: mlmodel
+
+  #     - id: step3
+  #       name: azure login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - id: step4
+  #       uses: kheiakiyama/install-azcopy-action@v1
+  #       with:
+  #         version: 'v10'
       
-      - id: step5
-        name: list directory
-        shell: bash
-        run: |
-          mkdir modeldirectory
-          mv model.pkl modeldirectory
+  #     - id: step5
+  #       name: list directory
+  #       shell: bash
+  #       run: |
+  #         mkdir modeldirectory
+  #         mv model.pkl modeldirectory
 
-      - id: step6
-        name: delete existing model
-        shell: bash
-        run: |
-          az storage blob delete-batch --source $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+  #     - id: step6
+  #       name: delete existing model
+  #       shell: bash
+  #       run: |
+  #         az storage blob delete-batch --source $STORAGE_CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
 
-      - id: step7
-        name: upload new model to storage account
-        shell: bash
-        run: |
-          az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s modeldirectory
+  #     - id: step7
+  #       name: upload new model to storage account
+  #       shell: bash
+  #       run: |
+  #         az storage blob upload-batch --account-name $STORAGE_ACCOUNT_NAME  --auth-mode key -d $STORAGE_CONTAINER_NAME -s modeldirectory
 
-  job4:
-    name: Build and push docker image
-    runs-on: ubuntu-20.04
-    needs: [job2]
-    steps:
+  # job4:
+  #   name: Build and push docker image
+  #   runs-on: ubuntu-20.04
+  #   needs: [job2]
+  #   steps:
 
-      - id: step1
-        name: checkout
-        uses: actions/checkout@v3
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v3
 
-      - id: step2
-        name: authenticate to dockerhub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - id: step2
+  #       name: authenticate to dockerhub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - id: step3
-        name: Build and push docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mlmodels:latest
+  #     - id: step3
+  #       name: Build and push docker image
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: .
+  #         push: true
+  #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/mlmodels:latest
   
-  job5:
-    name: Deploy model as container instance
-    runs-on: ubuntu-20.04
-    needs: [job3, job4]
-    steps:
+  # job5:
+  #   name: Deploy model as container instance
+  #   runs-on: ubuntu-20.04
+  #   needs: [job3, job4]
+  #   steps:
 
-      - id: step1
-        name: checkout
-        uses: actions/checkout@v3
+  #     - id: step1
+  #       name: checkout
+  #       uses: actions/checkout@v3
 
-      - id: step2
-        name: azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - id: step2
+  #       name: azure login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - id: step3
-        name: install container app extension
-        shell: bash
-        run: |
-          az extension add -n containerapp
+  #     - id: step3
+  #       name: install container app extension
+  #       shell: bash
+  #       run: |
+  #         az extension add -n containerapp
 
-      - id: step4
-        name: get containerapp name
-        continue-on-error: true
-        shell: bash
-        run: |
+  #     - id: step4
+  #       name: get containerapp name
+  #       continue-on-error: true
+  #       shell: bash
+  #       run: |
 
-          OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
-          echo $OUTPUT
-          echo "::set-output name=OUTPUT::$OUTPUT"
+  #         OUTPUT=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $CONTAINER_APP_NAME --query "name" -o tsv | tr -d '[:space:]')
+  #         echo $OUTPUT
+  #         echo "::set-output name=OUTPUT::$OUTPUT"
 
-      - id: step5
-        if: ${{ steps.step4.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
-        name: Update containerapp if exists
-        shell: bash
-        run: |
+  #     - id: step5
+  #       if: ${{ steps.step4.outputs.OUTPUT == env.CONTAINER_APP_NAME }}
+  #       name: Update containerapp if exists
+  #       shell: bash
+  #       run: |
 
-          az containerapp update \
-          --name $CONTAINER_APP_NAME \
-          --resource-group $RESOURCE_GROUP \
-          --image cloudwithdeb/mlmodels:latest \
-          --memory 4.0Gi \
-          --min-replicas 0 \
-          --max-replicas 3 \
-          --cpu 2.0 
+  #         az containerapp update \
+  #         --name $CONTAINER_APP_NAME \
+  #         --resource-group $RESOURCE_GROUP \
+  #         --image cloudwithdeb/mlmodels:latest \
+  #         --memory 4.0Gi \
+  #         --min-replicas 0 \
+  #         --max-replicas 3 \
+  #         --cpu 2.0 
 
-      - id: step6
-        if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
-        name: deploy log analytics workspace
-        shell: bash
-        continue-on-error: true
-        run: |
+  #     - id: step6
+  #       if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
+  #       name: deploy log analytics workspace
+  #       shell: bash
+  #       continue-on-error: true
+  #       run: |
 
-          az monitor log-analytics workspace create \
-          -n $LOG_ANALYTICS_NAME \
-          -g $RESOURCE_GROUP
+  #         az monitor log-analytics workspace create \
+  #         -n $LOG_ANALYTICS_NAME \
+  #         -g $RESOURCE_GROUP
 
-      - id: step7
-        name: Deploy containerapp environment
-        shell: bash
-        continue-on-error: true
-        run: |
+  #     - id: step7
+  #       name: Deploy containerapp environment
+  #       shell: bash
+  #       continue-on-error: true
+  #       run: |
 
-          WORKSPACE_ID=$(az monitor log-analytics workspace show --query customerId -g $RESOURCE_GROUP -n $LOG_ANALYTICS_NAME -o tsv | tr -d '[:space:]')
-          WORKSPACE_PRIMARY_KEY=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $CONTAINER_APP_ENVIRONMENT -o tsv | tr -d '[:space:]'`
+  #         WORKSPACE_ID=$(az monitor log-analytics workspace show --query customerId -g $RESOURCE_GROUP -n $LOG_ANALYTICS_NAME -o tsv | tr -d '[:space:]')
+  #         WORKSPACE_PRIMARY_KEY=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $CONTAINER_APP_ENVIRONMENT -o tsv | tr -d '[:space:]'`
 
-          az containerapp env create \
-          -n $CONTAINER_APP_ENVIRONMENT \
-          -g $RESOURCE_GROUP \
-          --logs-workspace-id $WORKSPACE_ID \
-          --logs-workspace-key $WORKSPACE_PRIMARY_KEY \
-          --location $REGION
+  #         az containerapp env create \
+  #         -n $CONTAINER_APP_ENVIRONMENT \
+  #         -g $RESOURCE_GROUP \
+  #         --logs-workspace-id $WORKSPACE_ID \
+  #         --logs-workspace-key $WORKSPACE_PRIMARY_KEY \
+  #         --location $REGION
 
-      - id: step8
-        if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
-        name: Deploy new containerapp if it does not exists
-        shell: bash
-        continue-on-error: true
-        run: |
+  #     - id: step8
+  #       if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
+  #       name: Deploy new containerapp if it does not exists
+  #       shell: bash
+  #       continue-on-error: true
+  #       run: |
           
-          az containerapp create \
-          --resource-group $RESOURCE_GROUP \
-          --environment $CONTAINER_APP_ENVIRONMENT \
-          --image cloudwithdeb/mlmodels:latest \
-          -n $CONTAINER_APP_NAME \
-          --target-port $PORT \
-          --ingress 'external' \
-          --cpu 2.0 \
-          --memory 4.0Gi \
-          --min-replicas 0 \
-          --max-replicas 3 \
-          --env-vars \
-          STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
-          STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
+  #         az containerapp create \
+  #         --resource-group $RESOURCE_GROUP \
+  #         --environment $CONTAINER_APP_ENVIRONMENT \
+  #         --image cloudwithdeb/mlmodels:latest \
+  #         -n $CONTAINER_APP_NAME \
+  #         --target-port $PORT \
+  #         --ingress 'external' \
+  #         --cpu 2.0 \
+  #         --memory 4.0Gi \
+  #         --min-replicas 0 \
+  #         --max-replicas 3 \
+  #         --env-vars \
+  #         STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
+  #         STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
       
-      - id: step9
-        name: enable containerapp managed identity
-        shell: bash
-        run: |
+  #     - id: step9
+  #       name: enable containerapp managed identity
+  #       shell: bash
+  #       run: |
 
-          az containerapp identity assign -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --system-assigned
+  #         az containerapp identity assign -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --system-assigned
 
-      - id: step10
-        name: Get containerapp managed identity id
-        shell: bash
-        run: |
+  #     - id: step10
+  #       name: Get containerapp managed identity id
+  #       shell: bash
+  #       run: |
 
-          CONTAINER_APP_ID="/subscriptions/${{secrets.SUBSCRIPTION}}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.App/containerApps/$CONTAINER_APP_NAME" &&
-          MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]') &&
-          echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
+  #         CONTAINER_APP_ID="/subscriptions/${{secrets.SUBSCRIPTION}}/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.App/containerApps/$CONTAINER_APP_NAME" &&
+  #         MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]') &&
+  #         echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
 
-      - id: step11
-        name: Grant storage account blob contributer permission to containerapp
-        shell: bash
-        run: |
-          az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id ${{ steps.step10.outputs.MANAGED_IDENTITY_ID }} --assignee-principal-type ServicePrincipal
+  #     - id: step11
+  #       name: Grant storage account blob contributer permission to containerapp
+  #       shell: bash
+  #       run: |
+  #         az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id ${{ steps.step10.outputs.MANAGED_IDENTITY_ID }} --assignee-principal-type ServicePrincipal
