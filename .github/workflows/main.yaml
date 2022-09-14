@@ -2,7 +2,7 @@ name: Stroke Prediction Github Actions
 on:
   push:
     branches:
-      - prod
+      - main
   workflow_dispatch:
     inputs:
       enableManualDeployment:
@@ -40,6 +40,7 @@ jobs:
       - id: step2
         name: create resource group
         shell: bash
+        continue-on-error: true
         run: |
           az group create -n $RESOURCE_GROUP -l $REGION
 
