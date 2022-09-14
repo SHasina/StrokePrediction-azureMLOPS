@@ -26,6 +26,13 @@ jobs:
     name: create resource group
     runs-on: ubuntu-20.04
     steps:
+
+      - id: step0
+        name: azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - id: step1
         name: create resource group
         shell: bash
