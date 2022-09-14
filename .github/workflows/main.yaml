@@ -247,7 +247,7 @@ jobs:
         run: |
 
           WORKSPACE_ID=$(az monitor log-analytics workspace show --query customerId -g $RESOURCE_GROUP -n $LOG_ANALYTICS_NAME -o tsv | tr -d '[:space:]')
-          WORKSPACE_PRIMARY_KEY=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $CONTAINER_APP_ENVIRONMENT -o tsv | tr -d '[:space:]'`
+          WORKSPACE_PRIMARY_KEY=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $LOG_ANALYTICS_NAME -o tsv | tr -d '[:space:]'`
 
           az containerapp env create \
           -n $CONTAINER_APP_ENVIRONMENT \
@@ -257,7 +257,7 @@ jobs:
           --location $REGION
 
       - id: step8
-        if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
+        if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME && success() }}
         name: Deploy new containerapp if it does not exists
         shell: bash
         run: |
