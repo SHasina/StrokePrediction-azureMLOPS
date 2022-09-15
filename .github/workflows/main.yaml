@@ -241,12 +241,6 @@ jobs:
           -g $RESOURCE_GROUP
 
       - id: step7
-        name: wait for 1 minute before moving to next step
-        uses: kibertoad/wait-action@1.0.1
-        with:
-          time: '60s'
-
-      - id: step8
         if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
         name: Deploy containerapp environment if containerapp does not exists
         shell: bash
@@ -261,6 +255,12 @@ jobs:
           --logs-workspace-id $WORKSPACE_ID \
           --logs-workspace-key $WORKSPACE_PRIMARY_KEY \
           --location $REGION
+      
+      - id: step8
+        name: wait for 1 minute before moving to next step
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '60s'
 
       - id: step9
         if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME && success() }}
