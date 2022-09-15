@@ -10,15 +10,15 @@ on:
         description: allowed manual deployment
         default: execute
 env:
-  STORAGE_ACCOUNT_URL: "https://stroke10model.blob.core.windows.net"
-  CONTAINER_APP_ENVIRONMENT: stroke10model
-  STORAGE_CONTAINER_NAME: stroke10model
-  STORAGE_ACCOUNT_NAME: stroke10model
-  CONTAINER_APP_NAME: stroke10model
-  LOG_ANALYTICS_NAME: stroke10model
-  RESOURCE_GROUP: stroke10model
+  STORAGE_ACCOUNT_URL: "https://stroke0modelm.blob.core.windows.net"
+  CONTAINER_APP_ENVIRONMENT: stroke0modelm
+  STORAGE_CONTAINER_NAME: stroke0modelm
+  STORAGE_ACCOUNT_NAME: stroke0modelm
+  CONTAINER_APP_NAME: stroke0modelm
+  LOG_ANALYTICS_NAME: stroke0modelm
+  RESOURCE_GROUP: stroke0modelm
   SKU: Standard_LRS
-  REGION: eastus
+  REGION: centralus
   PORT: 8000
 
 jobs:
