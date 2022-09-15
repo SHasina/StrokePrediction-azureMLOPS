@@ -241,6 +241,12 @@ jobs:
           -g $RESOURCE_GROUP
 
       - id: step7
+        name: wait for 1 minute before moving to next step
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '60s'
+
+      - id: step8
         if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME }}
         name: Deploy containerapp environment if containerapp does not exists
         shell: bash
@@ -256,7 +262,7 @@ jobs:
           --logs-workspace-key $WORKSPACE_PRIMARY_KEY \
           --location $REGION
 
-      - id: step8
+      - id: step9
         if: ${{ steps.step4.outputs.OUTPUT != env.CONTAINER_APP_NAME && success() }}
         name: Deploy new containerapp if it does not exists
         shell: bash
@@ -277,7 +283,7 @@ jobs:
           STORAGE_ACCOUNT_URL=$STORAGE_ACCOUNT_URL \
           STORAGE_ACCOUNT_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
       
-      - id: step9
+      - id: step10
         name: enable containerapp managed identity
         continue-on-error: true
         shell: bash
@@ -285,7 +291,7 @@ jobs:
 
           az containerapp identity assign -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --system-assigned
 
-      - id: step10
+      - id: step11
         name: Get containerapp managed identity id
         shell: bash
         run: |
@@ -294,7 +300,7 @@ jobs:
           MANAGED_IDENTITY_ID=$(az resource show --ids $CONTAINER_APP_ID --query "identity.principalId" -o tsv | tr -d '[:space:]') &&
           echo "::set-output name=MANAGED_IDENTITY_ID::$MANAGED_IDENTITY_ID"
 
-      - id: step11
+      - id: step12
         name: Grant storage account blob contributer permission to containerapp
         shell: bash
         run: |
