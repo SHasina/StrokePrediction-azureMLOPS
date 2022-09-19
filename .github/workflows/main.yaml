@@ -11,13 +11,13 @@ on:
         description: allowed manual deployment
         default: execute
 env:
-  STORAGE_ACCOUNT_URL: "https://mlstudio1.blob.core.windows.net"
-  CONTAINER_APP_ENVIRONMENT: mlstudio
-  STORAGE_CONTAINER_NAME: mlstudio
-  STORAGE_ACCOUNT_NAME: mlstudio1
-  CONTAINER_APP_NAME: mlstudio
-  LOG_ANALYTICS_NAME: mlstudio
-  RESOURCE_GROUP: mlstudio
+  STORAGE_ACCOUNT_URL: "https://stroke01m1.blob.core.windows.net"
+  CONTAINER_APP_ENVIRONMENT: stroke01m1
+  STORAGE_CONTAINER_NAME: stroke01m1
+  STORAGE_ACCOUNT_NAME: stroke01m1
+  CONTAINER_APP_NAME: stroke01m1
+  LOG_ANALYTICS_NAME: stroke01m1
+  RESOURCE_GROUP: stroke01m1
   SKU: Standard_LRS
   REGION: centralus
   PORT: 8000
