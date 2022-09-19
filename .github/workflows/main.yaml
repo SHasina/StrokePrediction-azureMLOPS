@@ -1,4 +1,4 @@
-name: Stroke Prediction Github Actions
+name: Stroke Prediction Deployment Using Github Actions
 on:
   push:
     branches:
